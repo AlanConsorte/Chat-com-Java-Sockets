@@ -39,14 +39,12 @@ public class Cliente extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Área superior (Exibição das mensagens do servidor)
         areaChat = new JTextArea();
         areaChat.setEditable(false);
         areaChat.setLineWrap(true);
         areaChat.setWrapStyleWord(true);
         add(new JScrollPane(areaChat), BorderLayout.CENTER);
 
-        // Painel inferior (Entrada de texto e botão)
         JPanel painelInferior = new JPanel(new BorderLayout());
         campoMensagem = new JTextField();
         botaoEnviar = new JButton("Send");
@@ -55,11 +53,9 @@ public class Cliente extends JFrame {
         painelInferior.add(botaoEnviar, BorderLayout.EAST);
         add(painelInferior, BorderLayout.SOUTH);
 
-        // Evento de envio de mensagem
         botaoEnviar.addActionListener(e -> enviarMensagemDigitada());
         campoMensagem.addActionListener(e -> enviarMensagemDigitada());
 
-        // Evento capturado ao fechar a janela do aplicativo para enviar "##sair##"
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
@@ -77,10 +73,8 @@ public class Cliente extends JFrame {
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            // Envia o cabeçalho inicial para o servidor associar o apelido do usuário
             out.println("LOGIN:" + apelido);
 
-            // Thread dedicada para escutar as transmissões que vêm do servidor
             new Thread(this::escutarServidor).start();
 
         } catch (IOException e) {
@@ -94,7 +88,6 @@ public class Cliente extends JFrame {
             String mensagemRecebida;
             while ((mensagemRecebida = in.readLine()) != null) {
                 String finalMsg = mensagemRecebida;
-                // Garante a thread-safety da atualização gráfica no Swing
                 SwingUtilities.invokeLater(() -> areaChat.append(finalMsg + "\n"));
             }
         } catch (IOException e) {
@@ -124,9 +117,10 @@ public class Cliente extends JFrame {
     }
 
     public static void main(String[] args) {
-        // Validação dos parâmetros de linha de comando exigidos
+
         if (args.length < 2) {
-            System.out.println("Uso incorreto! Execute passando parâmetros: java chat.Cliente <IP_SERVIDOR> <APELIDO>");
+            LOGGER.log(Level.SEVERE,
+                    "Uso incorreto! Execute passando parâmetros: java chat.Cliente <IP_SERVIDOR> <APELIDO>");
             System.exit(1);
         }
 

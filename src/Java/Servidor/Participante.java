@@ -23,8 +23,6 @@ public class Participante implements Runnable {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
 
-            // A primeira mensagem enviada pelo cliente deve ser o protocolo de
-            // identificação: "LOGIN:apelido"
             String primeiraLinha = in.readLine();
             if (primeiraLinha != null && primeiraLinha.startsWith("LOGIN:")) {
                 this.apelido = primeiraLinha.substring(6);
@@ -33,14 +31,13 @@ public class Participante implements Runnable {
             Servidor.LOGGER.info("Participante '" + apelido + "' conectou com sucesso.");
 
             String mensagem;
-            // Lê continuamente as mensagens enviadas pelo cliente
+
             while ((mensagem = in.readLine()) != null) {
                 if (mensagem.equalsIgnoreCase("##sair##")) {
                     Servidor.LOGGER.fine("Participante '" + apelido + "' solicitou saída (##sair##).");
-                    break; // Encerra o laço e finaliza a tarefa
+                    break;
                 }
 
-                // Cria o serviço de entrega e repassa para a thread fofoqueira
                 ServicoMensagem servico = new ServicoMensagem(apelido, mensagem);
                 Servidor.fofoqueiro.execute(servico);
             }
@@ -52,8 +49,6 @@ public class Participante implements Runnable {
         }
     }
 
-    // Método utilizado pela thread fofoqueira para encaminhar as mensagens a este
-    // cliente
     public void enviarMensagem(String mensagemFormatada) {
         if (out != null) {
             out.println(mensagemFormatada);
